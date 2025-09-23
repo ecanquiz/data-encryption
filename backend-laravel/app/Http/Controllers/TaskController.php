@@ -9,17 +9,26 @@ use App\Libraries\Encryption;
 
 class TaskController extends Controller
 {
+
+    private $_encryption;
+
+    public function __construct()
+    {
+        $this->_encryption = new Encryption(); 
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()//: Array
     {
-        $encryption = new Encryption();
-        $tasks = Task::all()->toArray();
+        $tasks = Task::orderBy('id', 'desc')->get()->toArray();
 
-        return response()->json(['status' => true, 'encData' => $encryption->encrypt('data=' . json_encode(array_reverse($tasks)))], 200);
+        return response()->json([
+            'status' => true,
+            'encData' => $this->_encryption->encrypt('data=' . json_encode($tasks))
+        ], 200);
 
-        //return array_reverse($tasks);
     }
 
     /**
@@ -50,7 +59,10 @@ class TaskController extends Controller
      */
     public function show(Task $task): JsonResponse
     {
-        return  response()->json($task);
+        return response()->json([
+            'status' => true,
+            'encData' => $this->_encryption->encrypt('data=' . json_encode($task))
+        ], 200);
     }
 
     /**
@@ -58,13 +70,24 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task): JsonResponse
     {
-        // $task->update($request->all());
+
+       $encData = $this->_encryption->decrypt($request->encData);
+        $data = (array) json_decode($encData['data']);
+        $task->update($data);
+
+        /*
+        //$task->update($request->all());
         $task->title = $request->title;
         $task->description = $request->description;
         $task->done = $request->done;
         $task->save();
-
         return response()->json(["message"=> "The task successfully updated"], 200);
+        */
+
+        return response()->json([
+            'status' => true,
+            'encData' => $this->_encryption->encrypt('data=' . json_encode(["message"=> "The task successfully updated"]))
+        ], 200);
     }
 
     /**
