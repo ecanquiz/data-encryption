@@ -24,10 +24,12 @@ class TaskController extends Controller
     {
         $tasks = Task::orderBy('id', 'desc')->get()->toArray();
 
-        return response()->json([
+        return response()->json($tasks); // Middleware se encarga de encriptar
+
+        /*return response()->json([
             'status' => true,
             'encData' => $this->_encryption->encrypt('data=' . json_encode($tasks))
-        ], 200);
+        ], 200);*/
 
     }
 
@@ -59,10 +61,12 @@ class TaskController extends Controller
      */
     public function show(Task $task): JsonResponse
     {
-        return response()->json([
+        return response()->json($task); // Middleware se encarga de encriptar
+
+        /*return response()->json([
             'status' => true,
             'encData' => $this->_encryption->encrypt('data=' . json_encode($task))
-        ], 200);
+        ], 200);*/
     }
 
     /**
@@ -71,23 +75,23 @@ class TaskController extends Controller
     public function update(Request $request, Task $task): JsonResponse
     {
 
-       $encData = $this->_encryption->decrypt($request->encData);
+       /*$encData = $this->_encryption->decrypt($request->encData);
         $data = (array) json_decode($encData['data']);
-        $task->update($data);
+        $task->update($data);*/
 
-        /*
+        
         //$task->update($request->all());
         $task->title = $request->title;
         $task->description = $request->description;
         $task->done = $request->done;
         $task->save();
         return response()->json(["message"=> "The task successfully updated"], 200);
-        */
+        
 
-        return response()->json([
+        /*return response()->json([
             'status' => true,
             'encData' => $this->_encryption->encrypt('data=' . json_encode(["message"=> "The task successfully updated"]))
-        ], 200);
+        ], 200);*/
     }
 
     /**
