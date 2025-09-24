@@ -2,11 +2,8 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import * as Services from '../services/'
 import type { Task } from '@/types'
-import { useEncryption } from './encryption';
-
 
 export default (props: { readonly id?: string; }) => {
-  const { decrypt, encrypt } = useEncryption();
   const router = useRouter()
   const task = ref({} as Task)
   const pending = ref(false)
@@ -19,10 +16,7 @@ export default (props: { readonly id?: string; }) => {
   const getTask = ()=> {
     pending.value = true
     Services.getTask(props.id)
-      .then(async response => {
-         const encData = await decrypt(response.data.encData);
-         return task.value = JSON.parse((encData as any).data);
-      })
+      .then(async response => task.value = response.data )
       .catch(
         error => console.log({
           errorCode: error.code, errorMessage: error.message
@@ -31,9 +25,8 @@ export default (props: { readonly id?: string; }) => {
       .finally(() => pending.value = false)
   }
 
-  const submit = async (task: Task) => {
+  const submit = async (payload: Task) => {
     pending.value = true
-    const payload = { encData: await encrypt('data=' + JSON.stringify(task)) };
 
     if (props.id===undefined) {
       Services.insertTask(payload)
@@ -46,8 +39,7 @@ export default (props: { readonly id?: string; }) => {
     } else {      
       Services.updateTask(props.id, payload)
         .then(async response => {
-          const encData = await decrypt(response.data.encData);
-          alert(JSON.parse((encData as any).data).message);
+          alert(response.data.message)
           router.push({name: 'index'})
         })
         .catch(error => console.log(error))

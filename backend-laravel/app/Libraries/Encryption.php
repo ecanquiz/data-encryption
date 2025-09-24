@@ -21,7 +21,7 @@ class Encryption
             $iterations = 999;
         }
 
-        $hashKey = hash_pbkdf2('sha512', env('encKey'), $salt, $iterations, (256 / 4));
+        $hashKey = hash_pbkdf2('sha512', env('ENCKEY'), $salt, $iterations, (256 / 4));
         unset($iterations, $json, $salt);
 
         $decrypted = openssl_decrypt($cipherText, $this->encryptMethod, hex2bin($hashKey), OPENSSL_RAW_DATA, $iv);
@@ -60,7 +60,7 @@ class Encryption
             $iterations = 999;
         }
 
-        $hashKey = hash_pbkdf2('sha512', env('encKey'), $salt, $iterations, (256 / 4));
+        $hashKey = hash_pbkdf2('sha512', env('ENCKEY'), $salt, $iterations, (256 / 4));
         unset($iterations, $json, $salt);
 
         $decrypted = openssl_decrypt($cipherText, $this->encryptMethod, hex2bin($hashKey), OPENSSL_RAW_DATA, $iv);
@@ -95,7 +95,7 @@ class Encryption
             $iterations = 999;
         }
 
-        $hashKey = hash_pbkdf2('sha512', env('encKey'), $salt, $iterations, (256 / 4));
+        $hashKey = hash_pbkdf2('sha512', env('ENCKEY'), $salt, $iterations, (256 / 4));
         unset($iterations, $json, $salt);
 
         $decrypted = openssl_decrypt($cipherText, $this->encryptMethod, hex2bin($hashKey), OPENSSL_RAW_DATA, $iv);
@@ -129,7 +129,7 @@ class Encryption
 
         $salt = openssl_random_pseudo_bytes(256);
         $iterations = 999;
-        $hashKey = hash_pbkdf2('sha512', env('encKey'), $salt, $iterations, (256 / 4));
+        $hashKey = hash_pbkdf2('sha512', env('ENCKEY'), $salt, $iterations, (256 / 4));
 
         $encryptedString = openssl_encrypt($string, $this->encryptMethod, hex2bin($hashKey), OPENSSL_RAW_DATA, $iv);
 
@@ -154,7 +154,7 @@ class Encryption
         $iv = hex2bin($json["iv"]);
         $cipherText = base64_decode($json['ciphertext']);
     
-        $hashKey = hash_pbkdf2('sha512', env('encKey'), $salt, 999, (256 / 4));
+        $hashKey = hash_pbkdf2('sha512', env('ENCKEY'), $salt, 999, (256 / 4));
         $decrypted = openssl_decrypt($cipherText, $this->encryptMethod, hex2bin($hashKey), OPENSSL_RAW_DATA, $iv);
     
         if ($decrypted === false) {
@@ -188,9 +188,7 @@ class Encryption
         $randomName = uniqid('file_', true);
 
         $outputPath = "$_ENV[PATH_TO_SAVE_FILES]public/uploads/documents/$randomName.$fileType";
-        //$outputPath = '/home/lysto/public_html/0/api/v1/adm/public/uploads/documents/' . $randomName . '.' . $fileType;
-        //$outputPath = '/Users/davidsoto/projects/lysto/david/lysto-admin-api/public/uploads/documents/' . $randomName . '.' . $fileType;
-
+        //$outputPath = '/home/username/projects/myapp/public/uploads/documents/' . $randomName . '.' . $fileType;
         //die($outputPath);
         // Guardar el contenido desencriptado en el archivo
         file_put_contents($outputPath, $decrypted);
@@ -204,18 +202,4 @@ class Encryption
 
         return intval(abs($number));
     }
-
-    public function arrToQryStr(array $arr = []): string
-    {
-        $queryString = '';
-
-        foreach ($arr as $key => $value) {
-            $queryString .= ($queryString === '')
-                ? $key . '=' . $value
-                : '&' . $key . '=' . $value;
-        }
-        
-        return $this->encrypt($queryString);
-    }
-
 }
